@@ -937,10 +937,9 @@ function showMapView() {
     
     // 确保地图容器完全显示后再初始化地图
     setTimeout(() => {
-        // 强制刷新地图容器大小
-        if (projectMap) {
-            projectMap.resize();
-        }
+        // 每次都重新初始化地图，确保正确定位
+        projectMap = null;
+        projectMarkers = [];
         initProjectMap();
     }, 300);
 }
