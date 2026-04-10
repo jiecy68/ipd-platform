@@ -997,17 +997,29 @@ function initProjectMap() {
         let centerPoint = [119.5313, 29.8773]; // 默认浙江省中心
         if (validProjects.length > 0) {
             let sumLng = 0, sumLat = 0;
+            let validCount = 0;
             validProjects.forEach(project => {
-                sumLng += parseFloat(project.longitude);
-                sumLat += parseFloat(project.latitude);
+                const lng = parseFloat(project.longitude);
+                const lat = parseFloat(project.latitude);
+                // 检查经纬度是否有效（在中国范围内）
+                if (!isNaN(lng) && !isNaN(lat) && lng > 73 && lng < 136 && lat > 3 && lat < 54) {
+                    sumLng += lng;
+                    sumLat += lat;
+                    validCount++;
+                }
             });
-            centerPoint = [sumLng / validProjects.length, sumLat / validProjects.length];
-            console.log('计算的项目中心点:', centerPoint);
+            if (validCount > 0) {
+                centerPoint = [sumLng / validCount, sumLat / validCount];
+                console.log('计算的项目中心点:', centerPoint);
+            } else {
+                console.warn('没有有效的经纬度数据，使用默认中心点');
+            }
         }
         
         // 创建地图实例
         if (!projectMap) {
             console.log('创建新的地图实例');
+            console.log('使用中心点:', centerPoint);
             try {
                 projectMap = new AMap.Map('project-map', {
                     zoom: 8,
@@ -1030,6 +1042,7 @@ function initProjectMap() {
             }
         } else {
             // 如果地图已存在，更新中心点
+            console.log('更新地图中心点:', centerPoint);
             projectMap.setCenter(centerPoint);
         }
         
