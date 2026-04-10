@@ -982,6 +982,34 @@ function initProjectMap() {
             return;
         }
         
+        // 直接使用浙江省中心作为默认中心点
+        const centerPoint = [119.5313, 29.8773]; // 浙江省中心
+        console.log('使用浙江省中心作为地图中心点:', centerPoint);
+        
+        // 创建地图实例
+        console.log('创建新的地图实例');
+        try {
+            // 强制重新创建地图实例
+            projectMap = new AMap.Map('project-map', {
+                zoom: 8,
+                center: centerPoint, // 浙江省中心
+                resizeEnable: true
+            });
+            
+            console.log('地图实例创建成功');
+            // 确保地图缩放级别正确
+            projectMap.setZoom(8);
+            // 再次设置中心点，确保定位正确
+            projectMap.setCenter(centerPoint);
+        } catch (mapError) {
+            console.error('创建地图实例失败:', mapError);
+            const mapContainer = document.getElementById('project-map');
+            if (mapContainer) {
+                mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666;">地图初始化失败，可能是API密钥问题</div>';
+            }
+            return;
+        }
+        
         // 添加项目标记
         console.log('开始添加项目标记');
         let hasMarkers = false;
@@ -996,95 +1024,40 @@ function initProjectMap() {
             return;
         }
         
-        // 直接使用浙江省中心作为默认中心点
-        const centerPoint = [119.5313, 29.8773]; // 浙江省中心
-        console.log('使用浙江省中心作为地图中心点:', centerPoint);
-        
-        // 创建地图实例
-        if (!projectMap) {
-            console.log('创建新的地图实例');
-            console.log('使用浙江省中心作为中心点:', centerPoint);
-            try {
-                projectMap = new AMap.Map('project-map', {
-                    zoom: 8,
-                    center: centerPoint, // 浙江省中心
-                    resizeEnable: true
-                });
-                
-                console.log('地图实例创建成功');
-                // 确保地图缩放级别正确
-                projectMap.setZoom(8);
-            } catch (mapError) {
-                console.error('创建地图实例失败:', mapError);
-                const mapContainer = document.getElementById('project-map');
-                if (mapContainer) {
-                    mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666;">地图初始化失败，可能是API密钥问题</div>';
-                }
-                return;
-            }
-        } else {
-            // 如果地图已存在，更新中心点和缩放级别
-            console.log('更新地图中心点和缩放级别:', centerPoint);
-            projectMap.setCenter(centerPoint);
-            projectMap.setZoom(8);
-        }
-        
         // 尝试添加标记
         validProjects.forEach(project => {
             try {
-                    // 注意：高德地图使用[longitude, latitude]顺序
-                    const lng = parseFloat(project.longitude);
-                    const lat = parseFloat(project.latitude);
-                    if (!isNaN(lng) && !isNaN(lat)) {
-                        const marker = new AMap.Marker({
-                            position: [lng, lat],
-                            map: projectMap,
-                            title: project.name,
-                            // 添加标签，默认显示项目名称
-                            label: {
-                                content: project.name,
-                                offset: new AMap.Pixel(0, -30),
-                                direction: 'top'
-                            }
-                        });
-                    
-                        // 添加点击事件
-                        marker.on('click', function() {
-                            showProjectDetail(project);
-                        });
-                    
-                        projectMarkers.push(marker);
-                        hasMarkers = true;
-                    }
-                } catch (markerError) {
-                    console.error('添加标记失败:', markerError);
+                // 注意：高德地图使用[longitude, latitude]顺序
+                const lng = parseFloat(project.longitude);
+                const lat = parseFloat(project.latitude);
+                if (!isNaN(lng) && !isNaN(lat)) {
+                    const marker = new AMap.Marker({
+                        position: [lng, lat],
+                        map: projectMap,
+                        title: project.name,
+                        // 添加标签，默认显示项目名称
+                        label: {
+                            content: project.name,
+                            offset: new AMap.Pixel(0, -30),
+                            direction: 'top'
+                        }
+                    });
+                
+                    // 添加点击事件
+                    marker.on('click', function() {
+                        showProjectDetail(project);
+                    });
+                
+                    projectMarkers.push(marker);
+                    hasMarkers = true;
                 }
+            } catch (markerError) {
+                console.error('添加标记失败:', markerError);
+            }
         });
         
         if (hasMarkers) {
             console.log('项目标记添加成功，共添加', projectMarkers.length, '个标记');
-            // 调整地图视野以显示所有标记
-            if (projectMarkers.length > 0) {
-                try {
-                    const bounds = new AMap.Bounds();
-                    projectMarkers.forEach(marker => {
-                        bounds.extend(marker.getPosition());
-                    });
-                    // 调整地图视野，包含所有标记
-                    projectMap.setBounds(bounds, true);
-                    // 确保缩放级别合适，至少为8级
-                    const zoom = projectMap.getZoom();
-                    if (zoom < 8) {
-                        projectMap.setZoom(8);
-                    }
-                    console.log('地图视野调整完成，当前缩放级别:', projectMap.getZoom());
-                } catch (boundsError) {
-                    console.error('调整地图视野失败:', boundsError);
-                    // 失败时手动设置中心点和缩放级别
-                    projectMap.setCenter(centerPoint);
-                    projectMap.setZoom(8);
-                }
-            }
         } else {
             console.log('添加标记失败');
             const mapContainer = document.getElementById('project-map');
