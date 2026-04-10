@@ -929,43 +929,62 @@ let projectMarkers = [];
 
 // 初始化项目地图
 function initProjectMap() {
+    console.log('开始初始化项目地图');
+    console.log('项目数据:', projectsData);
+    
     // 清空旧标记
     if (projectMarkers.length > 0) {
         projectMarkers.forEach(marker => marker.remove());
         projectMarkers = [];
     }
     
-    // 创建地图实例
-    if (!projectMap) {
-        projectMap = new AMap.Map('project-map', {
-            zoom: 11,
-            center: [116.397428, 39.90923], // 默认北京
-            resizeEnable: true
+    try {
+        // 创建地图实例
+        if (!projectMap) {
+            console.log('创建新的地图实例');
+            projectMap = new AMap.Map('project-map', {
+                zoom: 8,
+                center: [119.5313, 29.8773], // 默认浙江省中心
+                resizeEnable: true
+            });
+            
+            // 添加控件
+            projectMap.addControl(new AMap.Scale());
+            projectMap.addControl(new AMap.ToolBar());
+            projectMap.addControl(new AMap.MapType());
+            console.log('地图实例创建成功');
+        }
+        
+        // 添加项目标记
+        console.log('开始添加项目标记');
+        let hasMarkers = false;
+        projectsData.forEach(project => {
+            if (project.latitude && project.longitude) {
+                console.log('添加项目标记:', project.name, project.latitude, project.longitude);
+                const marker = new AMap.Marker({
+                    position: [project.longitude, project.latitude],
+                    map: projectMap,
+                    title: project.name
+                });
+                
+                // 添加点击事件
+                marker.on('click', function() {
+                    showProjectDetail(project);
+                });
+                
+                projectMarkers.push(marker);
+                hasMarkers = true;
+            }
         });
         
-        // 添加控件
-        projectMap.addControl(new AMap.Scale());
-        projectMap.addControl(new AMap.ToolBar());
-        projectMap.addControl(new AMap.MapType());
-    }
-    
-    // 添加项目标记
-    projectsData.forEach(project => {
-        if (project.latitude && project.longitude) {
-            const marker = new AMap.Marker({
-                position: [project.longitude, project.latitude],
-                map: projectMap,
-                title: project.name
-            });
-            
-            // 添加点击事件
-            marker.on('click', function() {
-                showProjectDetail(project);
-            });
-            
-            projectMarkers.push(marker);
+        if (hasMarkers) {
+            console.log('项目标记添加成功，共添加', projectMarkers.length, '个标记');
+        } else {
+            console.log('没有找到带经纬度的项目');
         }
-    });
+    } catch (error) {
+        console.error('地图初始化错误:', error);
+    }
 }
 
 // 页面加载完成后初始化
