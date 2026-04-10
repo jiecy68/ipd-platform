@@ -993,29 +993,9 @@ function initProjectMap() {
             return;
         }
         
-        // 计算项目中心点
-        let centerPoint = [119.5313, 29.8773]; // 默认浙江省中心
-        if (validProjects.length > 0) {
-            let sumLng = 0, sumLat = 0;
-            let validCount = 0;
-            validProjects.forEach(project => {
-                // 注意：项目数据中的经纬度顺序是latitude, longitude，而高德地图使用longitude, latitude
-                const lat = parseFloat(project.latitude);
-                const lng = parseFloat(project.longitude);
-                // 检查经纬度是否有效（在中国范围内）
-                if (!isNaN(lng) && !isNaN(lat) && lng > 73 && lng < 136 && lat > 3 && lat < 54) {
-                    sumLng += lng;
-                    sumLat += lat;
-                    validCount++;
-                }
-            });
-            if (validCount > 0) {
-                centerPoint = [sumLng / validCount, sumLat / validCount];
-                console.log('计算的项目中心点:', centerPoint);
-            } else {
-                console.warn('没有有效的经纬度数据，使用默认中心点');
-            }
-        }
+        // 直接使用浙江省中心作为默认中心点
+        const centerPoint = [119.5313, 29.8773]; // 浙江省中心
+        console.log('使用浙江省中心作为地图中心点:', centerPoint);
         
         // 创建地图实例
         if (!projectMap) {
