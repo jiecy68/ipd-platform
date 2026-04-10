@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPD研发管理平台</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <!-- 顶部导航栏 -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">🚀</span>
+                <span class="logo-text">IPD研发管理平台</span>
+            </div>
+            <nav class="nav">
+                <a href="#" class="nav-item active">项目看板</a>
+                <a href="#" class="nav-item">项目列表</a>
+                <a href="#" class="nav-item">DCP评审</a>
+                <a href="#" class="nav-item">报表分析</a>
+            </nav>
+            <div class="user-info">
+                <span class="user-name">管理员</span>
+                <span class="user-avatar">👤</span>
+            </div>
+        </header>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 页面标题 -->
+            <div class="page-header">
+                <h1>项目看板</h1>
+                <div class="actions">
+                    <button class="btn btn-secondary">导出报表</button>
+                    <button class="btn btn-primary">新建项目</button>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">进行中项目</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">待评审DCP</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">本月完成</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">85%</div>
+                    <div class="stat-label">整体进度</div>
+                </div>
+            </div>
+
+            <!-- DCP阶段说明 -->
+            <div class="dcp-legend">
+                <div class="legend-title">DCP阶段说明：</div>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <span class="legend-color charter"></span>
+                        <span>Charter DCP - 立项决策</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color cdcp"></span>
+                        <span>CDCP - 概念决策</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color pdcp"></span>
+                        <span>PDCP - 计划决策</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color adcp"></span>
+                        <span>ADCP - 可获得性决策</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color ldcp"></span>
+                        <span>LDCP - 生命周期终止</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 项目看板 -->
+            <div class="kanban-board">
+                <!-- Charter DCP 列 -->
+                <div class="kanban-column">
+                    <div class="column-header charter-header">
+                        <span class="column-title">Charter DCP</span>
+                        <span class="column-count">2</span>
+                    </div>
+                    <div class="column-content" id="charter-dcp">
+                        <!-- 项目卡片将通过JS动态生成 -->
+                    </div>
+                </div>
+
+                <!-- CDCP 列 -->
+                <div class="kanban-column">
+                    <div class="column-header cdcp-header">
+                        <span class="column-title">CDCP</span>
+                        <span class="column-count">3</span>
+                    </div>
+                    <div class="column-content" id="cdcp">
+                        <!-- 项目卡片将通过JS动态生成 -->
+                    </div>
+                </div>
+
+                <!-- PDCP 列 -->
+                <div class="kanban-column">
+                    <div class="column-header pdcp-header">
+                        <span class="column-title">PDCP</span>
+                        <span class="column-count">4</span>
+                    </div>
+                    <div class="column-content" id="pdcp">
+                        <!-- 项目卡片将通过JS动态生成 -->
+                    </div>
+                </div>
+
+                <!-- ADCP 列 -->
+                <div class="kanban-column">
+                    <div class="column-header adcp-header">
+                        <span class="column-title">ADCP</span>
+                        <span class="column-count">2</span>
+                    </div>
+                    <div class="column-content" id="adcp">
+                        <!-- 项目卡片将通过JS动态生成 -->
+                    </div>
+                </div>
+
+                <!-- LDCP 列 -->
+                <div class="kanban-column">
+                    <div class="column-header ldcp-header">
+                        <span class="column-title">LDCP</span>
+                        <span class="column-count">1</span>
+                    </div>
+                    <div class="column-content" id="ldcp">
+                        <!-- 项目卡片将通过JS动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

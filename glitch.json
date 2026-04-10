@@ -1,0 +1,20 @@
+{
+  "projectType": "express",
+  "install": "npm install",
+  "start": "node server.js",
+  "watch": {
+    "ignore": [
+      "node_modules",
+      "ipd_platform.db"
+    ],
+    "include": [
+      "*.js",
+      "*.html",
+      "*.css"
+    ]
+  },
+  "env": {
+    "PORT": "3001",
+    "NODE_ENV": "production"
+  }
+}
