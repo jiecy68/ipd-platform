@@ -935,10 +935,14 @@ function showMapView() {
     document.getElementById('kanban-view').style.display = 'none';
     document.getElementById('map-view').style.display = 'block';
     
-    // 初始化项目地图
+    // 确保地图容器完全显示后再初始化地图
     setTimeout(() => {
+        // 强制刷新地图容器大小
+        if (projectMap) {
+            projectMap.resize();
+        }
         initProjectMap();
-    }, 100);
+    }, 300);
 }
 
 // 项目地图实例
