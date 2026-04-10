@@ -57,7 +57,9 @@ function loadDefaultProjects() {
             startDate: '2024-01-15',
             endDate: '2024-06-30',
             progress: 15,
-            members: 8
+            members: 8,
+            latitude: 30.2741,
+            longitude: 120.1551
         },
         {
             id: 'PRJ-2024-002',
@@ -68,7 +70,9 @@ function loadDefaultProjects() {
             startDate: '2024-02-01',
             endDate: '2024-08-31',
             progress: 10,
-            members: 12
+            members: 12,
+            latitude: 29.8683,
+            longitude: 121.5440
         },
         {
             id: 'PRJ-2023-015',
@@ -79,7 +83,9 @@ function loadDefaultProjects() {
             startDate: '2023-10-10',
             endDate: '2024-04-30',
             progress: 35,
-            members: 6
+            members: 6,
+            latitude: 27.9947,
+            longitude: 120.6994
         },
         {
             id: 'PRJ-2023-018',
@@ -90,7 +96,9 @@ function loadDefaultProjects() {
             startDate: '2023-11-01',
             endDate: '2024-05-15',
             progress: 42,
-            members: 10
+            members: 10,
+            latitude: 30.0277,
+            longitude: 120.5853
         },
         {
             id: 'PRJ-2023-020',
@@ -101,7 +109,9 @@ function loadDefaultProjects() {
             startDate: '2023-12-01',
             endDate: '2024-06-15',
             progress: 28,
-            members: 7
+            members: 7,
+            latitude: 30.8682,
+            longitude: 119.8610
         },
         {
             id: 'PRJ-2023-008',
@@ -112,7 +122,9 @@ function loadDefaultProjects() {
             startDate: '2023-08-15',
             endDate: '2024-03-31',
             progress: 65,
-            members: 15
+            members: 15,
+            latitude: 30.7460,
+            longitude: 120.7691
         },
         {
             id: 'PRJ-2023-010',
@@ -123,7 +135,9 @@ function loadDefaultProjects() {
             startDate: '2023-09-01',
             endDate: '2024-04-15',
             progress: 58,
-            members: 11
+            members: 11,
+            latitude: 29.1246,
+            longitude: 119.6469
         },
         {
             id: 'PRJ-2023-012',
@@ -134,7 +148,9 @@ function loadDefaultProjects() {
             startDate: '2023-09-20',
             endDate: '2024-05-01',
             progress: 52,
-            members: 9
+            members: 9,
+            latitude: 28.9116,
+            longitude: 118.8742
         },
         {
             id: 'PRJ-2023-005',
@@ -145,7 +161,9 @@ function loadDefaultProjects() {
             startDate: '2023-07-01',
             endDate: '2024-02-28',
             progress: 78,
-            members: 5
+            members: 5,
+            latitude: 28.6688,
+            longitude: 121.4200
         },
         {
             id: 'PRJ-2023-003',
@@ -156,7 +174,9 @@ function loadDefaultProjects() {
             startDate: '2023-06-01',
             endDate: '2024-01-31',
             progress: 88,
-            members: 14
+            members: 14,
+            latitude: 28.4555,
+            longitude: 119.9216
         },
         {
             id: 'PRJ-2023-001',
@@ -167,7 +187,9 @@ function loadDefaultProjects() {
             startDate: '2023-05-15',
             endDate: '2024-01-15',
             progress: 92,
-            members: 8
+            members: 8,
+            latitude: 30.0166,
+            longitude: 122.2078
         },
         {
             id: 'PRJ-2022-025',
@@ -178,7 +200,9 @@ function loadDefaultProjects() {
             startDate: '2022-09-01',
             endDate: '2023-12-31',
             progress: 100,
-            members: 3
+            members: 3,
+            latitude: 30.2741,
+            longitude: 120.1551
         }
     ];
     renderKanban();
