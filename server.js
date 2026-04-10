@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3001;
 
 // Supabase配置
 const supabaseUrl = process.env.SUPABASE_URL || 'https://xxxxxxxx.supabase.co';
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY || 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+const supabaseKey = process.env.SUPABASE_SECRET_KEY || 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // 中间件

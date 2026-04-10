@@ -21,8 +21,8 @@
 2. 点击 "API"
 3. 复制以下信息:
    - Project URL: `https://xxxx.supabase.co`
-   - Anon Key: `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
-   - Service Role Key: `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
+   - Publishable Key: `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
+   - Secret Key: `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
 
 ### 3. 创建数据库表
 1. 进入 "SQL Editor"
@@ -64,8 +64,7 @@ VALUES
 2. 点击 "Settings" → "Environment Variables"
 3. 添加以下环境变量:
    - `SUPABASE_URL`: 你的Supabase Project URL
-   - `SUPABASE_ANON_KEY`: 你的Supabase Anon Key
-   - `SUPABASE_SERVICE_KEY`: 你的Supabase Service Role Key
+   - `SUPABASE_SECRET_KEY`: 你的Supabase Secret Key
 
 ## 技术说明
 
