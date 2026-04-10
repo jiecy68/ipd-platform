@@ -536,37 +536,55 @@ let selectedPosition = null;
 
 // 初始化地图
 function initMap() {
-    // 创建地图实例
-    map = new AMap.Map('map-container', {
-        zoom: 13,
-        center: [116.397428, 39.90923], // 默认北京
-        resizeEnable: true
-    });
-    
-    // 添加点击事件
-    map.on('click', function(e) {
-        const position = e.lnglat;
-        selectedPosition = position;
-        
-        // 移除旧标记
-        if (marker) {
-            marker.remove();
+    try {
+        // 检查AMap是否加载
+        if (typeof AMap === 'undefined') {
+            console.error('高德地图API未加载');
+            return;
         }
         
-        // 添加新标记
-        marker = new AMap.Marker({
-            position: position,
-            map: map
+        // 创建地图实例
+        map = new AMap.Map('map-container', {
+            zoom: 8,
+            center: [119.5313, 29.8773], // 默认浙江省中心
+            resizeEnable: true
         });
         
-        // 移动地图到选中位置
-        map.setCenter(position);
-    });
-    
-    // 添加控件
-    map.addControl(new AMap.Scale());
-    map.addControl(new AMap.ToolBar());
-    map.addControl(new AMap.MapType());
+        // 添加点击事件
+        map.on('click', function(e) {
+            const position = e.lnglat;
+            selectedPosition = position;
+            
+            // 移除旧标记
+            if (marker) {
+                marker.remove();
+            }
+            
+            // 添加新标记
+            try {
+                marker = new AMap.Marker({
+                    position: position,
+                    map: map
+                });
+            } catch (markerError) {
+                console.error('添加标记失败:', markerError);
+            }
+            
+            // 移动地图到选中位置
+            map.setCenter(position);
+        });
+        
+        // 尝试添加控件（如果可用）
+        try {
+            if (AMap.Scale) map.addControl(new AMap.Scale());
+            if (AMap.ToolBar) map.addControl(new AMap.ToolBar());
+            if (AMap.MapType) map.addControl(new AMap.MapType());
+        } catch (ctrlError) {
+            console.warn('添加控件失败:', ctrlError);
+        }
+    } catch (error) {
+        console.error('地图选择器初始化错误:', error);
+    }
 }
 
 // 确认地图选择
@@ -939,6 +957,12 @@ function initProjectMap() {
     }
     
     try {
+        // 检查AMap是否加载
+        if (typeof AMap === 'undefined') {
+            console.error('高德地图API未加载');
+            return;
+        }
+        
         // 创建地图实例
         if (!projectMap) {
             console.log('创建新的地图实例');
@@ -948,10 +972,15 @@ function initProjectMap() {
                 resizeEnable: true
             });
             
-            // 添加控件
-            projectMap.addControl(new AMap.Scale());
-            projectMap.addControl(new AMap.ToolBar());
-            projectMap.addControl(new AMap.MapType());
+            // 尝试添加控件（如果可用）
+            try {
+                if (AMap.Scale) projectMap.addControl(new AMap.Scale());
+                if (AMap.ToolBar) projectMap.addControl(new AMap.ToolBar());
+                if (AMap.MapType) projectMap.addControl(new AMap.MapType());
+            } catch (ctrlError) {
+                console.warn('添加控件失败:', ctrlError);
+            }
+            
             console.log('地图实例创建成功');
         }
         
@@ -961,19 +990,23 @@ function initProjectMap() {
         projectsData.forEach(project => {
             if (project.latitude && project.longitude) {
                 console.log('添加项目标记:', project.name, project.latitude, project.longitude);
-                const marker = new AMap.Marker({
-                    position: [project.longitude, project.latitude],
-                    map: projectMap,
-                    title: project.name
-                });
-                
-                // 添加点击事件
-                marker.on('click', function() {
-                    showProjectDetail(project);
-                });
-                
-                projectMarkers.push(marker);
-                hasMarkers = true;
+                try {
+                    const marker = new AMap.Marker({
+                        position: [project.longitude, project.latitude],
+                        map: projectMap,
+                        title: project.name
+                    });
+                    
+                    // 添加点击事件
+                    marker.on('click', function() {
+                        showProjectDetail(project);
+                    });
+                    
+                    projectMarkers.push(marker);
+                    hasMarkers = true;
+                } catch (markerError) {
+                    console.error('添加标记失败:', markerError);
+                }
             }
         });
         
