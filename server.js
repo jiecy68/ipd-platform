@@ -124,7 +124,7 @@ app.post('/api/projects', async (req, res) => {
         // 生成项目ID
         const projectId = await generateProjectId();
         
-        // 插入项目
+        // 插入项目 - 使用snake_case列名
         const { data, error } = await supabase
             .from('projects')
             .insert({
@@ -133,19 +133,21 @@ app.post('/api/projects', async (req, res) => {
                 phase: project.phase,
                 priority: project.priority,
                 manager: project.manager,
-                startDate: project.startDate,
-                endDate: project.endDate,
+                start_date: project.startDate,
+                end_date: project.endDate,
                 members: project.members,
                 progress: project.progress || 0
             })
             .select();
         
         if (error) {
+            console.error('插入项目错误:', error);
             res.status(500).json({ error: error.message });
         } else {
             res.status(201).json(data[0]);
         }
     } catch (error) {
+        console.error('创建项目错误:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -163,8 +165,8 @@ app.put('/api/projects/:id', async (req, res) => {
                 phase: project.phase,
                 priority: project.priority,
                 manager: project.manager,
-                startDate: project.startDate,
-                endDate: project.endDate,
+                start_date: project.startDate,
+                end_date: project.endDate,
                 members: project.members,
                 progress: project.progress
             })
@@ -172,6 +174,7 @@ app.put('/api/projects/:id', async (req, res) => {
             .select();
         
         if (error) {
+            console.error('更新项目错误:', error);
             res.status(500).json({ error: error.message });
         } else if (data.length === 0) {
             res.status(404).json({ error: '项目不存在' });
@@ -179,6 +182,7 @@ app.put('/api/projects/:id', async (req, res) => {
             res.json(data[0]);
         }
     } catch (error) {
+        console.error('更新项目错误:', error);
         res.status(500).json({ error: error.message });
     }
 });
