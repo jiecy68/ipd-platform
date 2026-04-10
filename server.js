@@ -3,9 +3,10 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const path = require('path');
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 // 中间件
 app.use(cors());
@@ -347,7 +348,7 @@ app.delete('/api/projects/:id', (req, res) => {
 });
 
 // 静态文件服务
-app.use(express.static('.'));
+app.use(express.static(path.join(__dirname, '.')));
 
 // 启动服务器
 app.listen(PORT, () => {
