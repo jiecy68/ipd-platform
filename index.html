@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IPD研发管理平台</title>
     <link rel="stylesheet" href="styles.css">
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=099354d99e3fb4706b33dfa67d0698cd"></script>
 </head>
 <body>
     <div class="app">
@@ -19,6 +20,7 @@
                 <a href="#" class="nav-item">项目列表</a>
                 <a href="#" class="nav-item">DCP评审</a>
                 <a href="#" class="nav-item">报表分析</a>
+                <a href="#" class="nav-item">项目地图</a>
             </nav>
             <div class="user-info">
                 <span class="user-name">管理员</span>
@@ -85,60 +87,69 @@
             </div>
 
             <!-- 项目看板 -->
-            <div class="kanban-board">
-                <!-- Charter DCP 列 -->
-                <div class="kanban-column">
-                    <div class="column-header charter-header">
-                        <span class="column-title">Charter DCP</span>
-                        <span class="column-count">2</span>
+            <div class="content-view" id="kanban-view">
+                <div class="kanban-board">
+                    <!-- Charter DCP 列 -->
+                    <div class="kanban-column">
+                        <div class="column-header charter-header">
+                            <span class="column-title">Charter DCP</span>
+                            <span class="column-count">2</span>
+                        </div>
+                        <div class="column-content" id="charter-dcp">
+                            <!-- 项目卡片将通过JS动态生成 -->
+                        </div>
                     </div>
-                    <div class="column-content" id="charter-dcp">
-                        <!-- 项目卡片将通过JS动态生成 -->
+
+                    <!-- CDCP 列 -->
+                    <div class="kanban-column">
+                        <div class="column-header cdcp-header">
+                            <span class="column-title">CDCP</span>
+                            <span class="column-count">3</span>
+                        </div>
+                        <div class="column-content" id="cdcp">
+                            <!-- 项目卡片将通过JS动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- PDCP 列 -->
+                    <div class="kanban-column">
+                        <div class="column-header pdcp-header">
+                            <span class="column-title">PDCP</span>
+                            <span class="column-count">4</span>
+                        </div>
+                        <div class="column-content" id="pdcp">
+                            <!-- 项目卡片将通过JS动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- ADCP 列 -->
+                    <div class="kanban-column">
+                        <div class="column-header adcp-header">
+                            <span class="column-title">ADCP</span>
+                            <span class="column-count">2</span>
+                        </div>
+                        <div class="column-content" id="adcp">
+                            <!-- 项目卡片将通过JS动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- LDCP 列 -->
+                    <div class="kanban-column">
+                        <div class="column-header ldcp-header">
+                            <span class="column-title">LDCP</span>
+                            <span class="column-count">1</span>
+                        </div>
+                        <div class="column-content" id="ldcp">
+                            <!-- 项目卡片将通过JS动态生成 -->
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- CDCP 列 -->
-                <div class="kanban-column">
-                    <div class="column-header cdcp-header">
-                        <span class="column-title">CDCP</span>
-                        <span class="column-count">3</span>
-                    </div>
-                    <div class="column-content" id="cdcp">
-                        <!-- 项目卡片将通过JS动态生成 -->
-                    </div>
-                </div>
-
-                <!-- PDCP 列 -->
-                <div class="kanban-column">
-                    <div class="column-header pdcp-header">
-                        <span class="column-title">PDCP</span>
-                        <span class="column-count">4</span>
-                    </div>
-                    <div class="column-content" id="pdcp">
-                        <!-- 项目卡片将通过JS动态生成 -->
-                    </div>
-                </div>
-
-                <!-- ADCP 列 -->
-                <div class="kanban-column">
-                    <div class="column-header adcp-header">
-                        <span class="column-title">ADCP</span>
-                        <span class="column-count">2</span>
-                    </div>
-                    <div class="column-content" id="adcp">
-                        <!-- 项目卡片将通过JS动态生成 -->
-                    </div>
-                </div>
-
-                <!-- LDCP 列 -->
-                <div class="kanban-column">
-                    <div class="column-header ldcp-header">
-                        <span class="column-title">LDCP</span>
-                        <span class="column-count">1</span>
-                    </div>
-                    <div class="column-content" id="ldcp">
-                        <!-- 项目卡片将通过JS动态生成 -->
-                    </div>
+            <!-- 项目地图 -->
+            <div class="content-view" id="map-view" style="display: none;">
+                <div style="height: 600px; border-radius: 8px; overflow: hidden;">
+                    <div id="project-map" style="width: 100%; height: 100%;"></div>
                 </div>
             </div>
         </main>

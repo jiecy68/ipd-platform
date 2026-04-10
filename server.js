@@ -124,24 +124,26 @@ app.post('/api/debug/reset-db', async (req, res) => {
                         enddate TEXT NOT NULL,
                         members INTEGER NOT NULL,
                         progress INTEGER DEFAULT 0,
+                        latitude DECIMAL(10, 6),
+                        longitude DECIMAL(10, 6),
                         createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     );
                     
                     -- 插入初始数据
-                    INSERT INTO projects (id, name, phase, priority, manager, startdate, enddate, members, progress)
+                    INSERT INTO projects (id, name, phase, priority, manager, startdate, enddate, members, progress, latitude, longitude)
                     VALUES
-                    ('PRJ-2024-001', '智能家居中控系统开发', 'charter-dcp', 'high', '张伟', '2024-01-15', '2024-06-30', 8, 15),
-                    ('PRJ-2024-002', '新能源汽车电池管理系统', 'charter-dcp', 'high', '李明', '2024-02-01', '2024-08-31', 12, 10),
-                    ('PRJ-2023-015', '工业物联网网关平台', 'cdcp', 'medium', '王芳', '2023-10-10', '2024-04-30', 6, 35),
-                    ('PRJ-2023-018', 'AI视觉检测系统', 'cdcp', 'high', '刘强', '2023-11-01', '2024-05-15', 10, 42),
-                    ('PRJ-2023-020', '5G通信模块研发', 'cdcp', 'medium', '陈静', '2023-12-01', '2024-06-15', 7, 28),
-                    ('PRJ-2023-008', '智能仓储机器人系统', 'pdcp', 'high', '赵磊', '2023-08-15', '2024-03-31', 15, 65),
-                    ('PRJ-2023-010', '医疗影像诊断设备', 'pdcp', 'high', '孙丽', '2023-09-01', '2024-04-15', 11, 58),
-                    ('PRJ-2023-012', '无人机飞控系统', 'pdcp', 'medium', '周杰', '2023-09-20', '2024-05-01', 9, 52),
-                    ('PRJ-2023-005', '智能穿戴设备二代', 'pdcp', 'low', '吴敏', '2023-07-01', '2024-02-28', 5, 78),
-                    ('PRJ-2023-003', '边缘计算服务器', 'adcp', 'high', '郑华', '2023-06-01', '2024-01-31', 14, 88),
-                    ('PRJ-2023-001', '智能安防监控系统', 'adcp', 'medium', '黄涛', '2023-05-15', '2024-01-15', 8, 92),
-                    ('PRJ-2022-025', '上一代智能家居产品', 'ldcp', 'low', '林峰', '2022-09-01', '2023-12-31', 3, 100);
+                    ('PRJ-2024-001', '智能家居中控系统开发', 'charter-dcp', 'high', '张伟', '2024-01-15', '2024-06-30', 8, 15, 30.2741, 120.1551), -- 杭州
+                    ('PRJ-2024-002', '新能源汽车电池管理系统', 'charter-dcp', 'high', '李明', '2024-02-01', '2024-08-31', 12, 10, 29.8683, 121.5440), -- 宁波
+                    ('PRJ-2023-015', '工业物联网网关平台', 'cdcp', 'medium', '王芳', '2023-10-10', '2024-04-30', 6, 35, 27.9947, 120.6994), -- 温州
+                    ('PRJ-2023-018', 'AI视觉检测系统', 'cdcp', 'high', '刘强', '2023-11-01', '2024-05-15', 10, 42, 30.0277, 120.5853), -- 绍兴
+                    ('PRJ-2023-020', '5G通信模块研发', 'cdcp', 'medium', '陈静', '2023-12-01', '2024-06-15', 7, 28, 30.8682, 119.8610), -- 湖州
+                    ('PRJ-2023-008', '智能仓储机器人系统', 'pdcp', 'high', '赵磊', '2023-08-15', '2024-03-31', 15, 65, 30.7460, 120.7691), -- 嘉兴
+                    ('PRJ-2023-010', '医疗影像诊断设备', 'pdcp', 'high', '孙丽', '2023-09-01', '2024-04-15', 11, 58, 29.1246, 119.6469), -- 金华
+                    ('PRJ-2023-012', '无人机飞控系统', 'pdcp', 'medium', '周杰', '2023-09-20', '2024-05-01', 9, 52, 28.9116, 118.8742), -- 衢州
+                    ('PRJ-2023-005', '智能穿戴设备二代', 'pdcp', 'low', '吴敏', '2023-07-01', '2024-02-28', 5, 78, 28.6688, 121.4200), -- 台州
+                    ('PRJ-2023-003', '边缘计算服务器', 'adcp', 'high', '郑华', '2023-06-01', '2024-01-31', 14, 88, 28.4555, 119.9216), -- 丽水
+                    ('PRJ-2023-001', '智能安防监控系统', 'adcp', 'medium', '黄涛', '2023-05-15', '2024-01-15', 8, 92, 30.0166, 122.2078), -- 舟山
+                    ('PRJ-2022-025', '上一代智能家居产品', 'ldcp', 'low', '林峰', '2022-09-01', '2023-12-31', 3, 100, 30.2741, 120.1551); -- 杭州
                 `
             });
         
@@ -224,7 +226,9 @@ app.post('/api/projects', async (req, res) => {
                 startdate: project.startDate,
                 enddate: project.endDate,
                 members: project.members,
-                progress: project.progress || 0
+                progress: project.progress || 0,
+                latitude: project.latitude,
+                longitude: project.longitude
             })
             .select();
         
@@ -256,7 +260,9 @@ app.put('/api/projects/:id', async (req, res) => {
                 startdate: project.startDate,
                 enddate: project.endDate,
                 members: project.members,
-                progress: project.progress
+                progress: project.progress,
+                latitude: project.latitude,
+                longitude: project.longitude
             })
             .eq('id', id)
             .select();

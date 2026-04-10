@@ -31,6 +31,8 @@ async function fetchProjects() {
             endDate: project.enddate || project.endDate,
             members: project.members,
             progress: project.progress,
+            latitude: project.latitude,
+            longitude: project.longitude,
             createdAt: project.createdat || project.createdAt
         }));
         
@@ -379,6 +381,14 @@ function showProjectDetail(project) {
                         <span>结束日期:</span>
                         <span>${project.endDate}</span>
                     </div>
+                    ${project.latitude && project.longitude ? `
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>项目地址:</span>
+                        <span style="font-size: 12px; color: #64748b; max-width: 200px; text-align: right;">
+                            ${project.latitude.toFixed(4)}, ${project.longitude.toFixed(4)}
+                        </span>
+                    </div>
+                    ` : ''}
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span>当前进度:</span>
                         <span style="font-weight: 600; color: ${config.color};">${project.progress}%</span>
@@ -420,6 +430,148 @@ function closeModal() {
     const modal = document.getElementById('project-modal');
     if (modal) {
         modal.remove();
+    }
+}
+
+// 打开地图选择器
+function openMapSelector() {
+    const modalHtml = `
+        <div style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        " id="map-modal">
+            <div style="
+                background: white;
+                border-radius: 12px;
+                padding: 24px;
+                width: 90%;
+                max-width: 800px;
+                height: 600px;
+                box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            ">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; font-size: 20px;">地图选点</h2>
+                    <button onclick="closeMapModal()" style="
+                        background: none;
+                        border: none;
+                        font-size: 24px;
+                        cursor: pointer;
+                        color: #64748b;
+                    ">×</button>
+                </div>
+                <div id="map-container" style="width: 100%; height: 500px;"></div>
+                <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: flex-end;">
+                    <button onclick="closeMapModal()" style="
+                        padding: 10px 20px;
+                        border: 1px solid #e2e8f0;
+                        background: white;
+                        border-radius: 6px;
+                        cursor: pointer;
+                    ">取消</button>
+                    <button onclick="confirmMapSelection()" style="
+                        padding: 10px 20px;
+                        border: none;
+                        background: #2563eb;
+                        color: white;
+                        border-radius: 6px;
+                        cursor: pointer;
+                    ">确认选择</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // 初始化地图
+    setTimeout(() => {
+        initMap();
+    }, 100);
+}
+
+// 关闭地图弹窗
+function closeMapModal() {
+    const modal = document.getElementById('map-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// 地图实例
+let map = null;
+let marker = null;
+let selectedPosition = null;
+
+// 初始化地图
+function initMap() {
+    // 创建地图实例
+    map = new AMap.Map('map-container', {
+        zoom: 13,
+        center: [116.397428, 39.90923], // 默认北京
+        resizeEnable: true
+    });
+    
+    // 添加点击事件
+    map.on('click', function(e) {
+        const position = e.lnglat;
+        selectedPosition = position;
+        
+        // 移除旧标记
+        if (marker) {
+            marker.remove();
+        }
+        
+        // 添加新标记
+        marker = new AMap.Marker({
+            position: position,
+            map: map
+        });
+        
+        // 移动地图到选中位置
+        map.setCenter(position);
+    });
+    
+    // 添加控件
+    map.addControl(new AMap.Scale());
+    map.addControl(new AMap.ToolBar());
+    map.addControl(new AMap.MapType());
+}
+
+// 确认地图选择
+function confirmMapSelection() {
+    if (selectedPosition) {
+        // 获取地址信息
+        AMap.plugin('AMap.Geocoder', function() {
+            const geocoder = new AMap.Geocoder({
+                city: '全国'
+            });
+            
+            geocoder.getAddress(selectedPosition, function(status, result) {
+                if (status === 'complete' && result.info === 'OK') {
+                    const address = result.regeocode.formattedAddress;
+                    
+                    // 更新表单
+                    const addressInput = document.querySelector('input[name="address"]');
+                    const latitudeInput = document.getElementById('latitude');
+                    const longitudeInput = document.getElementById('longitude');
+                    
+                    if (addressInput) addressInput.value = address;
+                    if (latitudeInput) latitudeInput.value = selectedPosition.getLat();
+                    if (longitudeInput) longitudeInput.value = selectedPosition.getLng();
+                    
+                    // 关闭地图弹窗
+                    closeMapModal();
+                }
+            });
+        });
     }
 }
 
@@ -557,6 +709,29 @@ function showCreateProjectModal() {
                             ">
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 6px; font-weight: 500; color: #475569;">项目地址</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" name="address" placeholder="点击地图选点" readonly style="
+                                flex: 1;
+                                padding: 10px 12px;
+                                border: 1px solid #e2e8f0;
+                                border-radius: 6px;
+                                font-size: 14px;
+                            ">
+                            <button type="button" onclick="openMapSelector()" style="
+                                padding: 10px 16px;
+                                border: 1px solid #2563eb;
+                                background: white;
+                                color: #2563eb;
+                                border-radius: 6px;
+                                cursor: pointer;
+                                font-size: 14px;
+                            ">地图选点</button>
+                        </div>
+                        <input type="hidden" name="latitude" id="latitude">
+                        <input type="hidden" name="longitude" id="longitude">
+                    </div>
                     <div style="margin-top: 24px; display: flex; gap: 12px;">
                         <button type="button" onclick="closeModal()" style="
                             flex: 1;
@@ -604,7 +779,9 @@ async function createProject(form) {
         startDate: formData.get('startDate'),
         endDate: formData.get('endDate'),
         members: parseInt(formData.get('members')),
-        progress: parseInt(formData.get('progress')) || 0
+        progress: parseInt(formData.get('progress')) || 0,
+        latitude: formData.get('latitude') ? parseFloat(formData.get('latitude')) : null,
+        longitude: formData.get('longitude') ? parseFloat(formData.get('longitude')) : null
     };
     
     // 验证日期
@@ -687,7 +864,9 @@ function createProjectLocally(form) {
         startDate: formData.get('startDate'),
         endDate: formData.get('endDate'),
         members: parseInt(formData.get('members')),
-        progress: parseInt(formData.get('progress')) || 0
+        progress: parseInt(formData.get('progress')) || 0,
+        latitude: formData.get('latitude') ? parseFloat(formData.get('latitude')) : null,
+        longitude: formData.get('longitude') ? parseFloat(formData.get('longitude')) : null
     };
     
     // 添加到项目数据
@@ -701,6 +880,68 @@ function createProjectLocally(form) {
     
     // 显示成功消息
     alert('项目创建成功！（本地模式）');
+}
+
+// 显示看板视图
+function showKanbanView() {
+    document.getElementById('kanban-view').style.display = 'block';
+    document.getElementById('map-view').style.display = 'none';
+}
+
+// 显示地图视图
+function showMapView() {
+    document.getElementById('kanban-view').style.display = 'none';
+    document.getElementById('map-view').style.display = 'block';
+    
+    // 初始化项目地图
+    setTimeout(() => {
+        initProjectMap();
+    }, 100);
+}
+
+// 项目地图实例
+let projectMap = null;
+let projectMarkers = [];
+
+// 初始化项目地图
+function initProjectMap() {
+    // 清空旧标记
+    if (projectMarkers.length > 0) {
+        projectMarkers.forEach(marker => marker.remove());
+        projectMarkers = [];
+    }
+    
+    // 创建地图实例
+    if (!projectMap) {
+        projectMap = new AMap.Map('project-map', {
+            zoom: 11,
+            center: [116.397428, 39.90923], // 默认北京
+            resizeEnable: true
+        });
+        
+        // 添加控件
+        projectMap.addControl(new AMap.Scale());
+        projectMap.addControl(new AMap.ToolBar());
+        projectMap.addControl(new AMap.MapType());
+    }
+    
+    // 添加项目标记
+    projectsData.forEach(project => {
+        if (project.latitude && project.longitude) {
+            const marker = new AMap.Marker({
+                position: [project.longitude, project.latitude],
+                map: projectMap,
+                title: project.name
+            });
+            
+            // 添加点击事件
+            marker.on('click', function() {
+                showProjectDetail(project);
+            });
+            
+            projectMarkers.push(marker);
+        }
+    });
 }
 
 // 页面加载完成后初始化
@@ -720,6 +961,14 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             navItems.forEach(i => i.classList.remove('active'));
             this.classList.add('active');
+            
+            // 切换视图
+            const viewText = this.textContent.trim();
+            if (viewText === '项目看板') {
+                showKanbanView();
+            } else if (viewText === '项目地图') {
+                showMapView();
+            }
         });
     });
     
