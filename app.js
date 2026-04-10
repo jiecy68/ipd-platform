@@ -982,9 +982,33 @@ function initProjectMap() {
             return;
         }
         
-        // 直接使用浙江省中心作为默认中心点
-        const centerPoint = [119.5313, 29.8773]; // 浙江省中心
-        console.log('使用浙江省中心作为地图中心点:', centerPoint);
+        // 计算项目中心点
+        let centerPoint = [119.5313, 29.8773]; // 默认浙江省中心
+        const validProjects = projectsData.filter(project => project.latitude && project.longitude);
+        
+        if (validProjects.length > 0) {
+            let sumLng = 0, sumLat = 0;
+            let validCount = 0;
+            
+            validProjects.forEach(project => {
+                const lng = parseFloat(project.longitude);
+                const lat = parseFloat(project.latitude);
+                if (!isNaN(lng) && !isNaN(lat)) {
+                    sumLng += lng;
+                    sumLat += lat;
+                    validCount++;
+                }
+            });
+            
+            if (validCount > 0) {
+                centerPoint = [sumLng / validCount, sumLat / validCount];
+                console.log('根据项目分布计算的中心点:', centerPoint);
+            } else {
+                console.log('没有有效的经纬度数据，使用默认中心点:', centerPoint);
+            }
+        } else {
+            console.log('没有项目数据，使用默认中心点:', centerPoint);
+        }
         
         // 创建地图实例
         console.log('创建新的地图实例');
@@ -1013,7 +1037,6 @@ function initProjectMap() {
         // 添加项目标记
         console.log('开始添加项目标记');
         let hasMarkers = false;
-        const validProjects = projectsData.filter(project => project.latitude && project.longitude);
         
         if (validProjects.length === 0) {
             console.log('没有找到带经纬度的项目');
