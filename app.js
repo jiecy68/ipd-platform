@@ -10,8 +10,12 @@ const API_BASE_URL = '/api';
 async function fetchProjects() {
     try {
         const response = await fetch(`${API_BASE_URL}/projects`);
+        console.log('API响应状态:', response.status);
+        console.log('API响应URL:', response.url);
         if (!response.ok) {
-            throw new Error('获取项目数据失败');
+            const errorText = await response.text();
+            console.error('API错误响应:', errorText);
+            throw new Error(`获取项目数据失败 (${response.status}): ${errorText}`);
         }
         projectsData = await response.json();
         renderKanban();
@@ -594,6 +598,8 @@ async function createProject(form) {
     }
     
     try {
+        console.log('正在创建项目...', projectData);
+        
         const response = await fetch(`${API_BASE_URL}/projects`, {
             method: 'POST',
             headers: {
@@ -602,12 +608,17 @@ async function createProject(form) {
             body: JSON.stringify(projectData)
         });
         
+        console.log('API响应状态:', response.status);
+        console.log('API响应URL:', response.url);
+        
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || '创建项目失败');
+            const errorText = await response.text();
+            console.error('API错误响应:', errorText);
+            throw new Error(`创建项目失败 (${response.status}): ${errorText}`);
         }
         
         const newProject = await response.json();
+        console.log('项目创建成功:', newProject);
         
         // 重新获取项目数据
         await fetchProjects();
