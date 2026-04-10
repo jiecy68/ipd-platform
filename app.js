@@ -999,8 +999,9 @@ function initProjectMap() {
             let sumLng = 0, sumLat = 0;
             let validCount = 0;
             validProjects.forEach(project => {
-                const lng = parseFloat(project.longitude);
+                // 注意：项目数据中的经纬度顺序是latitude, longitude，而高德地图使用longitude, latitude
                 const lat = parseFloat(project.latitude);
+                const lng = parseFloat(project.longitude);
                 // 检查经纬度是否有效（在中国范围内）
                 if (!isNaN(lng) && !isNaN(lat) && lng > 73 && lng < 136 && lat > 3 && lat < 54) {
                     sumLng += lng;
@@ -1049,25 +1050,30 @@ function initProjectMap() {
         // 尝试添加标记
         validProjects.forEach(project => {
             try {
-                    const marker = new AMap.Marker({
-                        position: [project.longitude, project.latitude],
-                        map: projectMap,
-                        title: project.name,
-                        // 添加标签，默认显示项目名称
-                        label: {
-                            content: project.name,
-                            offset: new AMap.Pixel(0, -30),
-                            direction: 'top'
-                        }
-                    });
+                    // 注意：高德地图使用[longitude, latitude]顺序
+                    const lng = parseFloat(project.longitude);
+                    const lat = parseFloat(project.latitude);
+                    if (!isNaN(lng) && !isNaN(lat)) {
+                        const marker = new AMap.Marker({
+                            position: [lng, lat],
+                            map: projectMap,
+                            title: project.name,
+                            // 添加标签，默认显示项目名称
+                            label: {
+                                content: project.name,
+                                offset: new AMap.Pixel(0, -30),
+                                direction: 'top'
+                            }
+                        });
                     
-                    // 添加点击事件
-                    marker.on('click', function() {
-                        showProjectDetail(project);
-                    });
+                        // 添加点击事件
+                        marker.on('click', function() {
+                            showProjectDetail(project);
+                        });
                     
-                    projectMarkers.push(marker);
-                    hasMarkers = true;
+                        projectMarkers.push(marker);
+                        hasMarkers = true;
+                    }
                 } catch (markerError) {
                     console.error('添加标记失败:', markerError);
                 }
