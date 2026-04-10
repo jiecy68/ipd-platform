@@ -960,28 +960,36 @@ function initProjectMap() {
         // 检查AMap是否加载
         if (typeof AMap === 'undefined') {
             console.error('高德地图API未加载');
+            // 显示错误提示
+            const mapContainer = document.getElementById('project-map');
+            if (mapContainer) {
+                mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666;">地图加载失败，请检查网络连接</div>';
+            }
             return;
         }
         
         // 创建地图实例
         if (!projectMap) {
             console.log('创建新的地图实例');
-            projectMap = new AMap.Map('project-map', {
-                zoom: 8,
-                center: [119.5313, 29.8773], // 默认浙江省中心
-                resizeEnable: true
-            });
-            
-            // 尝试添加控件（如果可用）
             try {
-                if (AMap.Scale) projectMap.addControl(new AMap.Scale());
-                if (AMap.ToolBar) projectMap.addControl(new AMap.ToolBar());
-                if (AMap.MapType) projectMap.addControl(new AMap.MapType());
-            } catch (ctrlError) {
-                console.warn('添加控件失败:', ctrlError);
+                projectMap = new AMap.Map('project-map', {
+                    zoom: 8,
+                    center: [119.5313, 29.8773], // 默认浙江省中心
+                    resizeEnable: true,
+                    // 禁用一些可能导致问题的功能
+                    features: ['bg', 'road', 'building']
+                });
+                
+                console.log('地图实例创建成功');
+            } catch (mapError) {
+                console.error('创建地图实例失败:', mapError);
+                // 显示错误提示
+                const mapContainer = document.getElementById('project-map');
+                if (mapContainer) {
+                    mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666;">地图初始化失败，请稍后再试</div>';
+                }
+                return;
             }
-            
-            console.log('地图实例创建成功');
         }
         
         // 添加项目标记
@@ -1014,9 +1022,32 @@ function initProjectMap() {
             console.log('项目标记添加成功，共添加', projectMarkers.length, '个标记');
         } else {
             console.log('没有找到带经纬度的项目');
+            // 显示提示信息
+            const mapContainer = document.getElementById('project-map');
+            if (mapContainer && projectMap) {
+                // 添加一个提示标记
+                try {
+                    new AMap.Marker({
+                        position: [119.5313, 29.8773],
+                        map: projectMap,
+                        title: '暂无项目数据',
+                        label: {
+                            content: '暂无项目数据',
+                            offset: new AMap.Pixel(0, -30)
+                        }
+                    });
+                } catch (err) {
+                    console.error('添加提示标记失败:', err);
+                }
+            }
         }
     } catch (error) {
         console.error('地图初始化错误:', error);
+        // 显示错误提示
+        const mapContainer = document.getElementById('project-map');
+        if (mapContainer) {
+            mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666;">地图加载失败: ' + error.message + '</div>';
+        }
     }
 }
 
