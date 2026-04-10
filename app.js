@@ -1069,9 +1069,19 @@ function initProjectMap() {
                     projectMarkers.forEach(marker => {
                         bounds.extend(marker.getPosition());
                     });
+                    // 调整地图视野，包含所有标记
                     projectMap.setBounds(bounds, true);
+                    // 确保缩放级别合适，至少为8级
+                    const zoom = projectMap.getZoom();
+                    if (zoom < 8) {
+                        projectMap.setZoom(8);
+                    }
+                    console.log('地图视野调整完成，当前缩放级别:', projectMap.getZoom());
                 } catch (boundsError) {
                     console.error('调整地图视野失败:', boundsError);
+                    // 失败时手动设置中心点和缩放级别
+                    projectMap.setCenter(centerPoint);
+                    projectMap.setZoom(8);
                 }
             }
         } else {
