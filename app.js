@@ -979,13 +979,39 @@ function initProjectMap() {
             return;
         }
         
+        // 添加项目标记
+        console.log('开始添加项目标记');
+        let hasMarkers = false;
+        const validProjects = projectsData.filter(project => project.latitude && project.longitude);
+        
+        if (validProjects.length === 0) {
+            console.log('没有找到带经纬度的项目');
+            const mapContainer = document.getElementById('project-map');
+            if (mapContainer) {
+                mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666;">暂无项目数据</div>';
+            }
+            return;
+        }
+        
+        // 计算项目中心点
+        let centerPoint = [119.5313, 29.8773]; // 默认浙江省中心
+        if (validProjects.length > 0) {
+            let sumLng = 0, sumLat = 0;
+            validProjects.forEach(project => {
+                sumLng += parseFloat(project.longitude);
+                sumLat += parseFloat(project.latitude);
+            });
+            centerPoint = [sumLng / validProjects.length, sumLat / validProjects.length];
+            console.log('计算的项目中心点:', centerPoint);
+        }
+        
         // 创建地图实例
         if (!projectMap) {
             console.log('创建新的地图实例');
             try {
                 projectMap = new AMap.Map('project-map', {
                     zoom: 8,
-                    center: [119.5313, 29.8773], // 默认浙江省中心
+                    center: centerPoint, // 使用计算的项目中心点
                     resizeEnable: true,
                     // 禁用一些可能导致问题的功能
                     features: ['bg', 'road', 'building'],
@@ -1002,41 +1028,36 @@ function initProjectMap() {
                 }
                 return;
             }
-        }
-        
-        // 添加项目标记
-        console.log('开始添加项目标记');
-        let hasMarkers = false;
-        const validProjects = projectsData.filter(project => project.latitude && project.longitude);
-        
-        if (validProjects.length === 0) {
-            console.log('没有找到带经纬度的项目');
-            const mapContainer = document.getElementById('project-map');
-            if (mapContainer) {
-                mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666;">暂无项目数据</div>';
-            }
-            return;
+        } else {
+            // 如果地图已存在，更新中心点
+            projectMap.setCenter(centerPoint);
         }
         
         // 尝试添加标记
         validProjects.forEach(project => {
             try {
-                const marker = new AMap.Marker({
-                    position: [project.longitude, project.latitude],
-                    map: projectMap,
-                    title: project.name
-                });
-                
-                // 添加点击事件
-                marker.on('click', function() {
-                    showProjectDetail(project);
-                });
-                
-                projectMarkers.push(marker);
-                hasMarkers = true;
-            } catch (markerError) {
-                console.error('添加标记失败:', markerError);
-            }
+                    const marker = new AMap.Marker({
+                        position: [project.longitude, project.latitude],
+                        map: projectMap,
+                        title: project.name,
+                        // 添加标签，默认显示项目名称
+                        label: {
+                            content: project.name,
+                            offset: new AMap.Pixel(0, -30),
+                            direction: 'top'
+                        }
+                    });
+                    
+                    // 添加点击事件
+                    marker.on('click', function() {
+                        showProjectDetail(project);
+                    });
+                    
+                    projectMarkers.push(marker);
+                    hasMarkers = true;
+                } catch (markerError) {
+                    console.error('添加标记失败:', markerError);
+                }
         });
         
         if (hasMarkers) {
