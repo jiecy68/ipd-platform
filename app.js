@@ -1000,19 +1000,17 @@ function initProjectMap() {
         // 创建地图实例
         if (!projectMap) {
             console.log('创建新的地图实例');
-            console.log('使用中心点:', centerPoint);
+            console.log('使用浙江省中心作为中心点:', centerPoint);
             try {
                 projectMap = new AMap.Map('project-map', {
                     zoom: 8,
-                    center: centerPoint, // 使用计算的项目中心点
-                    resizeEnable: true,
-                    // 禁用一些可能导致问题的功能
-                    features: ['bg', 'road', 'building'],
-                    // 禁用插件自动加载
-                    plugins: []
+                    center: centerPoint, // 浙江省中心
+                    resizeEnable: true
                 });
                 
                 console.log('地图实例创建成功');
+                // 确保地图缩放级别正确
+                projectMap.setZoom(8);
             } catch (mapError) {
                 console.error('创建地图实例失败:', mapError);
                 const mapContainer = document.getElementById('project-map');
@@ -1022,9 +1020,10 @@ function initProjectMap() {
                 return;
             }
         } else {
-            // 如果地图已存在，更新中心点
-            console.log('更新地图中心点:', centerPoint);
+            // 如果地图已存在，更新中心点和缩放级别
+            console.log('更新地图中心点和缩放级别:', centerPoint);
             projectMap.setCenter(centerPoint);
+            projectMap.setZoom(8);
         }
         
         // 尝试添加标记
