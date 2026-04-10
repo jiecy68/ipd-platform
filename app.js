@@ -17,8 +17,24 @@ async function fetchProjects() {
             console.error('API错误响应:', errorText);
             throw new Error(`获取项目数据失败 (${response.status}): ${errorText}`);
         }
-        projectsData = await response.json();
-        console.log('项目数据加载成功:', projectsData);
+        const rawData = await response.json();
+        console.log('原始API数据:', rawData);
+        
+        // 转换小写列名为驼峰命名
+        projectsData = rawData.map(project => ({
+            id: project.id,
+            name: project.name,
+            phase: project.phase,
+            priority: project.priority,
+            manager: project.manager,
+            startDate: project.startdate || project.startDate,
+            endDate: project.enddate || project.endDate,
+            members: project.members,
+            progress: project.progress,
+            createdAt: project.createdat || project.createdAt
+        }));
+        
+        console.log('转换后的数据:', projectsData);
         renderKanban();
     } catch (error) {
         console.error('获取项目数据错误:', error);
@@ -617,8 +633,22 @@ async function createProject(form) {
             throw new Error(`创建项目失败 (${response.status}): ${errorText}`);
         }
         
-        const newProject = await response.json();
-        console.log('项目创建成功:', newProject);
+        const rawNewProject = await response.json();
+        console.log('项目创建成功:', rawNewProject);
+        
+        // 转换小写列名为驼峰命名
+        const newProject = {
+            id: rawNewProject.id,
+            name: rawNewProject.name,
+            phase: rawNewProject.phase,
+            priority: rawNewProject.priority,
+            manager: rawNewProject.manager,
+            startDate: rawNewProject.startdate || rawNewProject.startDate,
+            endDate: rawNewProject.enddate || rawNewProject.endDate,
+            members: rawNewProject.members,
+            progress: rawNewProject.progress,
+            createdAt: rawNewProject.createdat || rawNewProject.createdAt
+        };
         
         // 重新获取项目数据
         await fetchProjects();

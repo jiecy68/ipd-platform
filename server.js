@@ -120,15 +120,15 @@ app.post('/api/debug/reset-db', async (req, res) => {
                         phase TEXT NOT NULL,
                         priority TEXT NOT NULL,
                         manager TEXT NOT NULL,
-                        startDate TEXT NOT NULL,
-                        endDate TEXT NOT NULL,
+                        startdate TEXT NOT NULL,
+                        enddate TEXT NOT NULL,
                         members INTEGER NOT NULL,
                         progress INTEGER DEFAULT 0,
-                        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     );
                     
                     -- 插入初始数据
-                    INSERT INTO projects (id, name, phase, priority, manager, startDate, endDate, members, progress)
+                    INSERT INTO projects (id, name, phase, priority, manager, startdate, enddate, members, progress)
                     VALUES
                     ('PRJ-2024-001', '智能家居中控系统开发', 'charter-dcp', 'high', '张伟', '2024-01-15', '2024-06-30', 8, 15),
                     ('PRJ-2024-002', '新能源汽车电池管理系统', 'charter-dcp', 'high', '李明', '2024-02-01', '2024-08-31', 12, 10),
@@ -212,7 +212,7 @@ app.post('/api/projects', async (req, res) => {
         // 生成项目ID
         const projectId = await generateProjectId();
         
-        // 插入项目 - 使用camelCase列名
+        // 插入项目 - 使用小写列名
         const { data, error } = await supabase
             .from('projects')
             .insert({
@@ -221,8 +221,8 @@ app.post('/api/projects', async (req, res) => {
                 phase: project.phase,
                 priority: project.priority,
                 manager: project.manager,
-                startDate: project.startDate,
-                endDate: project.endDate,
+                startdate: project.startDate,
+                enddate: project.endDate,
                 members: project.members,
                 progress: project.progress || 0
             })
@@ -253,8 +253,8 @@ app.put('/api/projects/:id', async (req, res) => {
                 phase: project.phase,
                 priority: project.priority,
                 manager: project.manager,
-                startDate: project.startDate,
-                endDate: project.endDate,
+                startdate: project.startDate,
+                enddate: project.endDate,
                 members: project.members,
                 progress: project.progress
             })
