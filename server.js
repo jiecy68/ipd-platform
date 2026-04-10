@@ -159,6 +159,68 @@ app.post('/api/debug/reset-db', async (req, res) => {
     }
 });
 
+// 添加经纬度字段到现有表
+app.post('/api/debug/add-location-fields', async (req, res) => {
+    try {
+        // 向现有表添加latitude和longitude字段
+        const { error: addFieldsError } = await supabase
+            .rpc('execute_sql', {
+                sql: `
+                    ALTER TABLE projects ADD COLUMN IF NOT EXISTS latitude DECIMAL(10, 6);
+                    ALTER TABLE projects ADD COLUMN IF NOT EXISTS longitude DECIMAL(10, 6);
+                `
+            });
+        
+        if (addFieldsError) {
+            console.error('添加字段失败:', addFieldsError);
+            res.status(500).json({ error: addFieldsError.message, message: '添加字段失败' });
+        } else {
+            res.json({ message: '经纬度字段添加成功' });
+        }
+    } catch (error) {
+        console.error('添加字段错误:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 更新现有项目的经纬度数据
+app.post('/api/debug/update-location-data', async (req, res) => {
+    try {
+        // 定义项目经纬度数据
+        const projectLocations = [
+            { id: 'PRJ-2024-001', latitude: 30.2741, longitude: 120.1551 }, // 杭州
+            { id: 'PRJ-2024-002', latitude: 29.8683, longitude: 121.5440 }, // 宁波
+            { id: 'PRJ-2023-015', latitude: 27.9947, longitude: 120.6994 }, // 温州
+            { id: 'PRJ-2023-018', latitude: 30.0277, longitude: 120.5853 }, // 绍兴
+            { id: 'PRJ-2023-020', latitude: 30.8682, longitude: 119.8610 }, // 湖州
+            { id: 'PRJ-2023-008', latitude: 30.7460, longitude: 120.7691 }, // 嘉兴
+            { id: 'PRJ-2023-010', latitude: 29.1246, longitude: 119.6469 }, // 金华
+            { id: 'PRJ-2023-012', latitude: 28.9116, longitude: 118.8742 }, // 衢州
+            { id: 'PRJ-2023-005', latitude: 28.6688, longitude: 121.4200 }, // 台州
+            { id: 'PRJ-2023-003', latitude: 28.4555, longitude: 119.9216 }, // 丽水
+            { id: 'PRJ-2023-001', latitude: 30.0166, longitude: 122.2078 }, // 舟山
+            { id: 'PRJ-2022-025', latitude: 30.2741, longitude: 120.1551 }  // 杭州
+        ];
+        
+        // 批量更新项目经纬度数据
+        for (const location of projectLocations) {
+            const { error } = await supabase
+                .from('projects')
+                .update({ latitude: location.latitude, longitude: location.longitude })
+                .eq('id', location.id);
+            
+            if (error) {
+                console.error(`更新项目 ${location.id} 失败:`, error);
+            }
+        }
+        
+        res.json({ message: '项目经纬度数据更新成功' });
+    } catch (error) {
+        console.error('更新经纬度数据错误:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // 获取所有项目
 app.get('/api/projects', async (req, res) => {
     try {
