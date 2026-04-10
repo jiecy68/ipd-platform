@@ -159,24 +159,23 @@ app.post('/api/debug/reset-db', async (req, res) => {
     }
 });
 
-// 添加经纬度字段到现有表
+// 添加经纬度字段到现有表 - 提示用户手动添加
 app.get('/api/debug/add-location-fields', async (req, res) => {
     try {
-        // 向现有表添加latitude和longitude字段
-        const { error: addFieldsError } = await supabase
-            .rpc('execute_sql', {
-                sql: `
-                    ALTER TABLE projects ADD COLUMN IF NOT EXISTS latitude DECIMAL(10, 6);
-                    ALTER TABLE projects ADD COLUMN IF NOT EXISTS longitude DECIMAL(10, 6);
-                `
-            });
-        
-        if (addFieldsError) {
-            console.error('添加字段失败:', addFieldsError);
-            res.status(500).json({ error: addFieldsError.message, message: '添加字段失败' });
-        } else {
-            res.json({ message: '经纬度字段添加成功' });
-        }
+        // 由于Supabase不支持通过API执行SQL，需要用户手动添加字段
+        res.json({ 
+            message: '请在Supabase控制台手动添加字段',
+            instructions: [
+                '1. 登录Supabase控制台',
+                '2. 选择你的项目',
+                '3. 进入Database -> Tables',
+                '4. 选择projects表',
+                '5. 点击Edit Table',
+                '6. 添加两个新字段:',
+                '   - 字段名: latitude, 类型: decimal, 精度: 10, 小数位: 6',
+                '   - 字段名: longitude, 类型: decimal, 精度: 10, 小数位: 6'
+            ]
+        });
     } catch (error) {
         console.error('添加字段错误:', error);
         res.status(500).json({ error: error.message });
@@ -203,18 +202,31 @@ app.get('/api/debug/update-location-data', async (req, res) => {
         ];
         
         // 批量更新项目经纬度数据
+        const results = [];
         for (const location of projectLocations) {
-            const { error } = await supabase
-                .from('projects')
-                .update({ latitude: location.latitude, longitude: location.longitude })
-                .eq('id', location.id);
-            
-            if (error) {
-                console.error(`更新项目 ${location.id} 失败:`, error);
+            try {
+                const { data, error } = await supabase
+                    .from('projects')
+                    .update({ latitude: location.latitude, longitude: location.longitude })
+                    .eq('id', location.id)
+                    .select();
+                
+                if (error) {
+                    console.error(`更新项目 ${location.id} 失败:`, error);
+                    results.push({ id: location.id, status: '失败', error: error.message });
+                } else {
+                    results.push({ id: location.id, status: '成功' });
+                }
+            } catch (err) {
+                console.error(`更新项目 ${location.id} 异常:`, err);
+                results.push({ id: location.id, status: '异常', error: err.message });
             }
         }
         
-        res.json({ message: '项目经纬度数据更新成功' });
+        res.json({ 
+            message: '项目经纬度数据更新完成',
+            results: results
+        });
     } catch (error) {
         console.error('更新经纬度数据错误:', error);
         res.status(500).json({ error: error.message });
