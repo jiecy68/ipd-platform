@@ -956,11 +956,22 @@ function initProjectMap() {
         projectMarkers = [];
     }
     
+    // 检查API加载状态
+    if (!window.amapApiLoaded) {
+        console.error('高德地图API未加载完成');
+        const mapContainer = document.getElementById('project-map');
+        if (mapContainer) {
+            mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666;">地图加载中，请稍候...</div>';
+        }
+        // 延迟重试
+        setTimeout(initProjectMap, 1000);
+        return;
+    }
+    
     try {
         // 检查AMap是否加载
         if (typeof AMap === 'undefined') {
             console.error('高德地图API未加载');
-            // 显示错误提示
             const mapContainer = document.getElementById('project-map');
             if (mapContainer) {
                 mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666;">地图加载失败，请检查网络连接</div>';
@@ -977,16 +988,17 @@ function initProjectMap() {
                     center: [119.5313, 29.8773], // 默认浙江省中心
                     resizeEnable: true,
                     // 禁用一些可能导致问题的功能
-                    features: ['bg', 'road', 'building']
+                    features: ['bg', 'road', 'building'],
+                    // 禁用插件自动加载
+                    plugins: []
                 });
                 
                 console.log('地图实例创建成功');
             } catch (mapError) {
                 console.error('创建地图实例失败:', mapError);
-                // 显示错误提示
                 const mapContainer = document.getElementById('project-map');
                 if (mapContainer) {
-                    mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666;">地图初始化失败，请稍后再试</div>';
+                    mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666;">地图初始化失败，可能是API密钥问题</div>';
                 }
                 return;
             }
@@ -995,55 +1007,61 @@ function initProjectMap() {
         // 添加项目标记
         console.log('开始添加项目标记');
         let hasMarkers = false;
-        projectsData.forEach(project => {
-            if (project.latitude && project.longitude) {
-                console.log('添加项目标记:', project.name, project.latitude, project.longitude);
-                try {
-                    const marker = new AMap.Marker({
-                        position: [project.longitude, project.latitude],
-                        map: projectMap,
-                        title: project.name
-                    });
-                    
-                    // 添加点击事件
-                    marker.on('click', function() {
-                        showProjectDetail(project);
-                    });
-                    
-                    projectMarkers.push(marker);
-                    hasMarkers = true;
-                } catch (markerError) {
-                    console.error('添加标记失败:', markerError);
-                }
+        const validProjects = projectsData.filter(project => project.latitude && project.longitude);
+        
+        if (validProjects.length === 0) {
+            console.log('没有找到带经纬度的项目');
+            const mapContainer = document.getElementById('project-map');
+            if (mapContainer) {
+                mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666;">暂无项目数据</div>';
+            }
+            return;
+        }
+        
+        // 尝试添加标记
+        validProjects.forEach(project => {
+            try {
+                const marker = new AMap.Marker({
+                    position: [project.longitude, project.latitude],
+                    map: projectMap,
+                    title: project.name
+                });
+                
+                // 添加点击事件
+                marker.on('click', function() {
+                    showProjectDetail(project);
+                });
+                
+                projectMarkers.push(marker);
+                hasMarkers = true;
+            } catch (markerError) {
+                console.error('添加标记失败:', markerError);
             }
         });
         
         if (hasMarkers) {
             console.log('项目标记添加成功，共添加', projectMarkers.length, '个标记');
-        } else {
-            console.log('没有找到带经纬度的项目');
-            // 显示提示信息
-            const mapContainer = document.getElementById('project-map');
-            if (mapContainer && projectMap) {
-                // 添加一个提示标记
+            // 调整地图视野以显示所有标记
+            if (projectMarkers.length > 0) {
                 try {
-                    new AMap.Marker({
-                        position: [119.5313, 29.8773],
-                        map: projectMap,
-                        title: '暂无项目数据',
-                        label: {
-                            content: '暂无项目数据',
-                            offset: new AMap.Pixel(0, -30)
-                        }
+                    const bounds = new AMap.Bounds();
+                    projectMarkers.forEach(marker => {
+                        bounds.extend(marker.getPosition());
                     });
-                } catch (err) {
-                    console.error('添加提示标记失败:', err);
+                    projectMap.setBounds(bounds, true);
+                } catch (boundsError) {
+                    console.error('调整地图视野失败:', boundsError);
                 }
+            }
+        } else {
+            console.log('添加标记失败');
+            const mapContainer = document.getElementById('project-map');
+            if (mapContainer) {
+                mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666;">添加项目标记失败</div>';
             }
         }
     } catch (error) {
         console.error('地图初始化错误:', error);
-        // 显示错误提示
         const mapContainer = document.getElementById('project-map');
         if (mapContainer) {
             mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666;">地图加载失败: ' + error.message + '</div>';
