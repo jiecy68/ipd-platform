@@ -69,6 +69,94 @@ async function generateProjectId() {
 
 // API路由
 
+// 检查数据库表结构
+app.get('/api/debug/schema', async (req, res) => {
+    try {
+        // 查询表结构
+        const { data, error } = await supabase
+            .from('projects')
+            .select('*')
+            .limit(1);
+        
+        if (error) {
+            // 如果查询失败，尝试获取表信息
+            console.error('查询表结构失败:', error);
+            res.status(500).json({ error: error.message, message: '表结构查询失败' });
+        } else {
+            // 获取表结构信息
+            const columns = data.length > 0 ? Object.keys(data[0]) : [];
+            res.json({ 
+                message: '表结构查询成功',
+                columns: columns,
+                sample: data[0] || {} 
+            });
+        }
+    } catch (error) {
+        console.error('调试API错误:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 重新创建数据库表
+app.post('/api/debug/reset-db', async (req, res) => {
+    try {
+        // 首先删除表（如果存在）
+        const { error: dropError } = await supabase
+            .rpc('execute_sql', {
+                sql: `DROP TABLE IF EXISTS projects;`
+            });
+        
+        if (dropError) {
+            console.error('删除表失败:', dropError);
+        }
+        
+        // 创建新表
+        const { error: createError } = await supabase
+            .rpc('execute_sql', {
+                sql: `
+                    CREATE TABLE projects (
+                        id TEXT PRIMARY KEY,
+                        name TEXT NOT NULL,
+                        phase TEXT NOT NULL,
+                        priority TEXT NOT NULL,
+                        manager TEXT NOT NULL,
+                        startDate TEXT NOT NULL,
+                        endDate TEXT NOT NULL,
+                        members INTEGER NOT NULL,
+                        progress INTEGER DEFAULT 0,
+                        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    );
+                    
+                    -- 插入初始数据
+                    INSERT INTO projects (id, name, phase, priority, manager, startDate, endDate, members, progress)
+                    VALUES
+                    ('PRJ-2024-001', '智能家居中控系统开发', 'charter-dcp', 'high', '张伟', '2024-01-15', '2024-06-30', 8, 15),
+                    ('PRJ-2024-002', '新能源汽车电池管理系统', 'charter-dcp', 'high', '李明', '2024-02-01', '2024-08-31', 12, 10),
+                    ('PRJ-2023-015', '工业物联网网关平台', 'cdcp', 'medium', '王芳', '2023-10-10', '2024-04-30', 6, 35),
+                    ('PRJ-2023-018', 'AI视觉检测系统', 'cdcp', 'high', '刘强', '2023-11-01', '2024-05-15', 10, 42),
+                    ('PRJ-2023-020', '5G通信模块研发', 'cdcp', 'medium', '陈静', '2023-12-01', '2024-06-15', 7, 28),
+                    ('PRJ-2023-008', '智能仓储机器人系统', 'pdcp', 'high', '赵磊', '2023-08-15', '2024-03-31', 15, 65),
+                    ('PRJ-2023-010', '医疗影像诊断设备', 'pdcp', 'high', '孙丽', '2023-09-01', '2024-04-15', 11, 58),
+                    ('PRJ-2023-012', '无人机飞控系统', 'pdcp', 'medium', '周杰', '2023-09-20', '2024-05-01', 9, 52),
+                    ('PRJ-2023-005', '智能穿戴设备二代', 'pdcp', 'low', '吴敏', '2023-07-01', '2024-02-28', 5, 78),
+                    ('PRJ-2023-003', '边缘计算服务器', 'adcp', 'high', '郑华', '2023-06-01', '2024-01-31', 14, 88),
+                    ('PRJ-2023-001', '智能安防监控系统', 'adcp', 'medium', '黄涛', '2023-05-15', '2024-01-15', 8, 92),
+                    ('PRJ-2022-025', '上一代智能家居产品', 'ldcp', 'low', '林峰', '2022-09-01', '2023-12-31', 3, 100);
+                `
+            });
+        
+        if (createError) {
+            console.error('创建表失败:', createError);
+            res.status(500).json({ error: createError.message, message: '创建表失败' });
+        } else {
+            res.json({ message: '数据库表重置成功' });
+        }
+    } catch (error) {
+        console.error('重置数据库错误:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // 获取所有项目
 app.get('/api/projects', async (req, res) => {
     try {
@@ -124,7 +212,7 @@ app.post('/api/projects', async (req, res) => {
         // 生成项目ID
         const projectId = await generateProjectId();
         
-        // 插入项目 - 使用snake_case列名
+        // 插入项目 - 使用camelCase列名
         const { data, error } = await supabase
             .from('projects')
             .insert({
@@ -133,8 +221,8 @@ app.post('/api/projects', async (req, res) => {
                 phase: project.phase,
                 priority: project.priority,
                 manager: project.manager,
-                start_date: project.startDate,
-                end_date: project.endDate,
+                startDate: project.startDate,
+                endDate: project.endDate,
                 members: project.members,
                 progress: project.progress || 0
             })
@@ -165,8 +253,8 @@ app.put('/api/projects/:id', async (req, res) => {
                 phase: project.phase,
                 priority: project.priority,
                 manager: project.manager,
-                start_date: project.startDate,
-                end_date: project.endDate,
+                startDate: project.startDate,
+                endDate: project.endDate,
                 members: project.members,
                 progress: project.progress
             })

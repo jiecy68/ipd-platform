@@ -17,25 +17,9 @@ async function fetchProjects() {
             console.error('API错误响应:', errorText);
             throw new Error(`获取项目数据失败 (${response.status}): ${errorText}`);
         }
-        const rawData = await response.json();
-        console.log('原始API数据:', rawData);
-        
-        // 转换snake_case为camelCase
-        projectsData = rawData.map(project => ({
-            id: project.id,
-            name: project.name,
-            phase: project.phase,
-            priority: project.priority,
-            manager: project.manager,
-            startDate: project.start_date || project.startDate,
-            endDate: project.end_date || project.endDate,
-            members: project.members,
-            progress: project.progress,
-            createdAt: project.created_at || project.createdAt
-        }));
-        
+        projectsData = await response.json();
+        console.log('项目数据加载成功:', projectsData);
         renderKanban();
-        console.log('项目数据加载成功');
     } catch (error) {
         console.error('获取项目数据错误:', error);
         // 加载失败时使用默认数据
@@ -633,22 +617,8 @@ async function createProject(form) {
             throw new Error(`创建项目失败 (${response.status}): ${errorText}`);
         }
         
-        const rawNewProject = await response.json();
-        console.log('项目创建成功:', rawNewProject);
-        
-        // 转换snake_case为camelCase
-        const newProject = {
-            id: rawNewProject.id,
-            name: rawNewProject.name,
-            phase: rawNewProject.phase,
-            priority: rawNewProject.priority,
-            manager: rawNewProject.manager,
-            startDate: rawNewProject.start_date || rawNewProject.startDate,
-            endDate: rawNewProject.end_date || rawNewProject.endDate,
-            members: rawNewProject.members,
-            progress: rawNewProject.progress,
-            createdAt: rawNewProject.created_at || rawNewProject.createdAt
-        };
+        const newProject = await response.json();
+        console.log('项目创建成功:', newProject);
         
         // 重新获取项目数据
         await fetchProjects();
