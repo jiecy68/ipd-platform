@@ -160,7 +160,7 @@ app.post('/api/debug/reset-db', async (req, res) => {
 });
 
 // 添加经纬度字段到现有表
-app.post('/api/debug/add-location-fields', async (req, res) => {
+app.get('/api/debug/add-location-fields', async (req, res) => {
     try {
         // 向现有表添加latitude和longitude字段
         const { error: addFieldsError } = await supabase
@@ -184,7 +184,7 @@ app.post('/api/debug/add-location-fields', async (req, res) => {
 });
 
 // 更新现有项目的经纬度数据
-app.post('/api/debug/update-location-data', async (req, res) => {
+app.get('/api/debug/update-location-data', async (req, res) => {
     try {
         // 定义项目经纬度数据
         const projectLocations = [
